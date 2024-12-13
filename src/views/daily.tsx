@@ -4,18 +4,17 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useState } from 'react';
 import { Report } from '@/types';
 import { REPORT_CATEGORIES } from '@/utils/constants';
-import { AddReportDialog } from '@/components/reports/dialogs/add-report-dialog';
-import { EditReportDialog } from '@/components/reports/dialogs/edit-report-dialog';
 import { FloatingActionButton } from '@/components/shared/floating-action-button';
+import { ReportDialog } from '@/components/reports/dialogs/report-dialog';
 
 export function Daily() {
   const [reports, setReports] = useState<Report[]>([]);
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isAddingReport, setIsAddingReport] = useState(false);
   const [editingReport, setEditingReport] = useState<Report | null>(null);
 
   const addReport = (newReport: Omit<Report, 'id'>) => {
     setReports([...reports, { ...newReport, id: Date.now().toString() }]);
-    setIsAddDialogOpen(false);
+    setIsAddingReport(false);
   };
 
   const updateReport = (updatedReport: Report) => {
@@ -31,6 +30,14 @@ export function Daily() {
     setReports(reports.filter((report) => report.id !== id));
   };
 
+  const reportDialogActionWrapper = (report: Omit<Report, 'id'> | Report) => {
+    if ('id' in report) {
+      updateReport(report);
+    } else {
+      addReport(report);
+    }
+  };
+
   return (
     <>
       <Sidebar />
@@ -44,12 +51,12 @@ export function Daily() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-10">
             {REPORT_CATEGORIES.map((category) => (
               <div
-                key={category}
+                key={category.value}
                 className="bg-zinc-100 p-4 rounded-lg shadow-md"
               >
-                <h2 className="text-lg font-semibold mb-2">{category}</h2>
+                <h2 className="text-lg font-semibold mb-2">{category.label}</h2>
                 {reports
-                  .filter((report) => report.category === category)
+                  .filter((report) => report.category === category.value)
                   .map((report) => (
                     <ReportCard
                       key={report.id}
@@ -61,21 +68,24 @@ export function Daily() {
               </div>
             ))}
           </div>
-          <AddReportDialog
-            isOpen={isAddDialogOpen}
-            onClose={() => setIsAddDialogOpen(false)}
-            onAdd={addReport}
-          />
+          {isAddingReport && (
+            <ReportDialog
+              onClose={() => setIsAddingReport(false)}
+              onAction={reportDialogActionWrapper}
+              action="add"
+            />
+          )}
           {editingReport && (
-            <EditReportDialog
+            <ReportDialog
               report={editingReport}
               onClose={() => setEditingReport(null)}
-              onUpdate={updateReport}
+              onAction={reportDialogActionWrapper}
+              action="edit"
             />
           )}
         </section>
 
-        <FloatingActionButton onClick={() => setIsAddDialogOpen(true)} />
+        <FloatingActionButton onClick={() => setIsAddingReport(true)} />
       </main>
     </>
   );

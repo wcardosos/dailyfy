@@ -27,7 +27,9 @@ export function ReportCard({
   return (
     <div className="bg-white p-4 rounded-lg shadow mb-2">
       <h3 className="font-semibold">{report.title}</h3>
-      <p className="text-sm text-gray-600 mt-1">{report.description}</p>
+      <p className="text-sm text-gray-600 mt-1 whitespace-pre-line line-clamp-3">
+        {report.description}
+      </p>
       <div className="flex justify-end mt-2">
         <Button variant="ghost" size="sm" onClick={onEdit}>
           <Pencil className="h-4 w-4" />
@@ -48,7 +50,9 @@ export function ReportCard({
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={onDelete}>Delete</AlertDialogAction>
+              <AlertDialogAction onClick={onDelete} variant="destructive">
+                Delete
+              </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
