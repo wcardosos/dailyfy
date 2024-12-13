@@ -7,8 +7,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Category, Report } from '@/types';
-import { ReportDescriptionType } from '@/types/report-description-type';
+import { Category, Report, ReportDescriptionType } from '@/types';
 import { REPORT_CATEGORIES } from '@/utils/constants';
 import { Label } from '@radix-ui/react-label';
 import {
@@ -20,10 +19,12 @@ import {
 } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useEffect, useRef, useState } from 'react';
+import { getTodayReferenceDate } from '@/actions/get-today-reference-date';
+import { generateId } from '@/actions/generate-id';
 
 interface ReportDialogProps {
   onClose: () => void;
-  onAction: (report: Omit<Report, 'id'> | Report) => void;
+  onAction: (report: Report) => void;
   action: 'add' | 'edit';
   report?: Report;
 }
@@ -47,7 +48,15 @@ export function ReportDialog({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onAction({ title, description, category, descriptionType });
+
+    onAction({
+      id: report?.id ?? generateId(),
+      title,
+      description,
+      category,
+      descriptionType,
+      referenceDate: getTodayReferenceDate(),
+    });
 
     if (action === 'add') {
       setTitle('');

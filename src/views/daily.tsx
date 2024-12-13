@@ -1,23 +1,27 @@
 import { ReportCard } from '@/components/reports/report-card';
 import { Sidebar } from '@/components/shared/sidebar';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Report } from '@/types';
 import { REPORT_CATEGORIES } from '@/utils/constants';
 import { FloatingActionButton } from '@/components/shared/floating-action-button';
 import { ReportDialog } from '@/components/reports/dialogs/report-dialog';
+import { getReportsByReferenceDate } from '@/actions/daily/get-reports-by-reference-date';
+import { getTodayReferenceDate } from '@/actions/get-today-reference-date';
+import { updateReportsFromReferenceDate } from '@/actions/daily/update-reports-from-date';
 
 export function Daily() {
-  const [reports, setReports] = useState<Report[]>([]);
+  const [reports, setReports] = useState<Report[] | null>(null);
   const [isAddingReport, setIsAddingReport] = useState(false);
   const [editingReport, setEditingReport] = useState<Report | null>(null);
 
-  const addReport = (newReport: Omit<Report, 'id'>) => {
-    setReports([...reports, { ...newReport, id: Date.now().toString() }]);
+  const addReport = (newReport: Report) => {
+    setReports([...reports!, newReport]);
     setIsAddingReport(false);
   };
 
   const updateReport = (updatedReport: Report) => {
+    if (!reports) return;
     setReports(
       reports.map((report) =>
         report.id === updatedReport.id ? updatedReport : report,
@@ -27,16 +31,18 @@ export function Daily() {
   };
 
   const deleteReport = (id: string) => {
+    if (!reports) return;
     setReports(reports.filter((report) => report.id !== id));
   };
 
-  const reportDialogActionWrapper = (report: Omit<Report, 'id'> | Report) => {
-    if ('id' in report) {
-      updateReport(report);
-    } else {
-      addReport(report);
-    }
-  };
+  useEffect(() => {
+    setReports(getReportsByReferenceDate(getTodayReferenceDate()));
+  }, []);
+
+  useEffect(() => {
+    if (!reports) return;
+    updateReportsFromReferenceDate(reports, getTodayReferenceDate());
+  }, [reports]);
 
   return (
     <>
@@ -56,7 +62,7 @@ export function Daily() {
               >
                 <h2 className="text-lg font-semibold mb-2">{category.label}</h2>
                 {reports
-                  .filter((report) => report.category === category.value)
+                  ?.filter((report) => report.category === category.value)
                   .map((report) => (
                     <ReportCard
                       key={report.id}
@@ -71,7 +77,7 @@ export function Daily() {
           {isAddingReport && (
             <ReportDialog
               onClose={() => setIsAddingReport(false)}
-              onAction={reportDialogActionWrapper}
+              onAction={addReport}
               action="add"
             />
           )}
@@ -79,7 +85,7 @@ export function Daily() {
             <ReportDialog
               report={editingReport}
               onClose={() => setEditingReport(null)}
-              onAction={reportDialogActionWrapper}
+              onAction={updateReport}
               action="edit"
             />
           )}
