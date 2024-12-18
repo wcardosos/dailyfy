@@ -9,6 +9,7 @@ import { ReportDialog } from '@/components/reports/dialogs/report-dialog';
 import { getReportsByReferenceDate } from '@/actions/daily/get-reports-by-reference-date';
 import { getTodayReferenceDate } from '@/actions/get-today-reference-date';
 import { updateReportsFromReferenceDate } from '@/actions/daily/update-reports-from-date';
+import { ShowDailySummary } from '@/components/reports/show-daily-summary';
 
 export function Daily() {
   const [reports, setReports] = useState<Report[] | null>(null);
@@ -52,9 +53,14 @@ export function Daily() {
         <SidebarTrigger />
 
         <section className="mx-6 md:mx-10 lg:mx-16">
-          <h1 className="font-bold text-4xl">Today</h1>
+          <div className="flex justify-between">
+            <h1 className="font-bold text-4xl">Today</h1>
+            <div className="flex gap-2">
+              <ShowDailySummary reports={reports ?? []} />
+            </div>
+          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-10 items-start">
             {REPORT_CATEGORIES.map((category) => (
               <div
                 key={category.value}
