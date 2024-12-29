@@ -49,7 +49,7 @@ export function Daily() {
     <>
       <Sidebar />
 
-      <main className="w-full">
+      <main className="w-full bg-zinc-50 text-zinc-950">
         <SidebarTrigger />
 
         <section className="mx-6 md:mx-10 lg:mx-16">

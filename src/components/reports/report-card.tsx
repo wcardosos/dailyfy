@@ -26,7 +26,7 @@ export function ReportCard({
 }: Readonly<ReportCardProps>) {
   return (
     <div className="bg-white p-4 rounded-lg shadow mb-2">
-      <h3 className="font-semibold">{report.title}</h3>
+      <h3 className="font-medium">{report.title}</h3>
       <p className="text-sm text-gray-600 mt-1 whitespace-pre-line line-clamp-3">
         {report.description}
       </p>
